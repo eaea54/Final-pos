@@ -8,7 +8,7 @@ import QRCode from 'react-native-qrcode-svg';
 
 const Body = () => {
     const [prdnm, setPrdnm] = useState([]); //상품 이름
-    const [data, setData] = useState('no data..'); // NFC에 보낼 정보 (알러지 정보, 상품 이름) 
+    const [data, setData] = useState(' '); // NFC에 보낼 정보 (알러지 정보, 상품 이름) 
     const [saveText, setSaveText] = useState(''); //가장 최근에 찍힌 상품 고유번호
     const [inputText, setInputText] = useState(''); //바코드를 찍으면 InputText에 들어온 후 
     const [modalVisible, setmodalVisible] = useState(false);
@@ -26,9 +26,9 @@ const Body = () => {
                     activeOpacity={1} 
                     onPressOut={() => {setmodalVisible(false)}}
                 >
-                    <View  style={{padding:30 , backgroundColor:'#fff', borderRadius: 10}}>
+                    <View  style={{padding:50 , backgroundColor:'#fff', borderRadius: 10}}>
                         <QRCode
-                            size= {200}
+                            size= {300}
                             value = {data}
                         />
                     </View>
@@ -49,34 +49,12 @@ const Body = () => {
                             const BAR_CODE = saveText;
                             try {
                                 const res = await axios.get(
-                                    'http://openapi.foodsafetykorea.go.kr/api/dc61c6e3c72645e19481/C005/xml/1/5/BAR_CD='+BAR_CODE
+                                    'https://world.openfoodfacts.org/product/'+BAR_CODE 
                                 );
-                                let resNumber = JSON.stringify(res);
-                                
-                                let prdlstReportNo=resNumber.split("<PRDLST_REPORT_NO>")[1].split("</PRDLST_REPORT_NO>")[0];
-                                var a = '';
-                                var nm = '';
-                                var xhr = new XMLHttpRequest();
-                                var url = 'http://apis.data.go.kr/B553748/CertImgListService/getCertImgListService'; 
-                                var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'4Es3IAYWvtEjQloH9aZivTA0FhZMzBQbDRsGvzwvSpWjQfBd%2BGkPTUj7TNeAltYbfnkZd%2BMPvvlwmdYPH%2FC%2BXw%3D%3D'; 
-                                queryParams += '&' + encodeURIComponent('prdlstReportNo') + '=' + encodeURIComponent(prdlstReportNo); //
-                                queryParams += '&' + encodeURIComponent('returnType') + '=' + encodeURIComponent('xml'); //
-                                queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); //
-                                queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /**/
-                                xhr.open('GET', url + queryParams);
-                                xhr.onreadystatechange = function () {
-                                    if (this.readyState == 4) {
-                                        a += (this.responseText).split("<prdlstNm>")[1].split("</prdlstNm>")[0].trim();
-                                        a += '&' + (this.responseText).split("<allergy>")[1].split("함유</allergy>")[0].trim();
-                                        a += '&' + prdlstReportNo;
-                                        a += '/';
-                                        nm=(this.responseText).split("<prdlstNm>")[1].split("</prdlstNm>")[0];
-                                        setData(data+a)
-                                        setPrdnm([...prdnm,nm])
-                                    }
-                                };
-                        
-                                xhr.send('');
+                                let nm = res.data.split("<title>")[1].split('</title>')[0].trim();
+                                let a= nm + '&' + res.data.split("Allergens:</strong>")[1].split('</div>')[0].trim() + '/';
+                                setData(data+a)
+                                setPrdnm([...prdnm,nm])
                             } catch (error) {
                                     console.log(error);
                             }
@@ -115,29 +93,25 @@ const Body = () => {
                 
                 <TouchableOpacity>
                     <View style = {styles.iButtonBox}>
-                        <Text style = {styles.iButtonText}>멤버십 혜택</Text>
+                        <Text style = {styles.iButtonText}>Membership</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity>
                     <View style = {styles.iButtonBox}>
-                        <Text style = {styles.iButtonText}>포인트 적립</Text>
+                        <Text style = {styles.iButtonText}>Receipt</Text>
                     </View>
                 </TouchableOpacity>
-                <TouchableOpacity>
-                    <View style = {styles.iButtonBox}>
-                        <Text style = {styles.iButtonText}>영수증 출력</Text>
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <View style = {styles.iButtonBox}>
-                        <Text style = {styles.iButtonText}>멤버십 혜택</Text>
-                    </View>
-                </TouchableOpacity>
+
                 <TouchableOpacity
                     onPressOut={()=>setmodalVisible(true)}
                 >
                     <View style = {styles.iButtonBox}>
-                        <Text style = {styles.iButtonText}>QR 생성</Text>
+                        <Text style = {styles.iButtonText}>QR</Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                    <View style = {styles.iButtonBox}>
+                        <Text style = {styles.iButtonText}>Cancel</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -146,7 +120,16 @@ const Body = () => {
                             setInputText('');
                             setSaveText('');}}
                 >
-                    <View style = {styles.iButtonBox}>
+                    <View style = {{
+                                    marginBottom: 5,
+                                    padding: 5,
+                                    paddingBottom: 20,
+                                    paddingTop : 20,
+                                    backgroundColor: "#1A65CE",
+                                    borderRadius: 7,
+                                    alignItems: 'center',
+                                    fontWeight: 10
+                                }}>
                         <Text style = {styles.iButtonText}>구매</Text>
                     </View>
                 </TouchableOpacity>
@@ -157,11 +140,11 @@ const Body = () => {
 
 const styles = StyleSheet.create ({
     body: {
-        flex: 7,
+        flex: 9,
         flexDirection: 'row',
         borderBottomWidth: 3,
         borderBottomColor : '#5A5AFF',
-        backgroundColor : '#D5DEE8',
+        backgroundColor : '#F2FAFF',
     },
 
     item1: {
@@ -174,8 +157,8 @@ const styles = StyleSheet.create ({
         flex: 1,
     },
     iKeypad: {
-        height: 200,
-        width : 135,
+        height: 400,
+        width : 260,
         marginTop : 5,
         marginBottom : 5,
         paddingLeft : 3,
@@ -183,8 +166,8 @@ const styles = StyleSheet.create ({
     },
 
     iAdvertise: {
-        height: 50,
-        width : 140,
+        height: 100,
+        width : 270,
         paddingLeft : 6,
         paddingRight: 6,
     },
@@ -201,10 +184,10 @@ const styles = StyleSheet.create ({
     },
     iButtonText: {
         color: 'white',
-        fontSize: 15,
+        fontSize: 25,
     },
     iButton: {
-        padding: 10,
+        padding: 5,
     },
 
     NFCButton: {
@@ -233,10 +216,10 @@ const styles = StyleSheet.create ({
         textAlign: "left",
         paddingLeft : 5,
         paddingRight : 5,
-        width : 270
+        width : '100%'
     },
     item: {
-        fontSize: 18,
+        fontSize: 40,
         color: 'black',
         borderBottomColor : '#5A5AFF',
         borderBottomWidth : 1,

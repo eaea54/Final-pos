@@ -11,6 +11,7 @@
     "axios": "^0.27.2",
     "expo": "~46.0.9",
     "expo-cli": "^6.0.6",
+    "expo-modules-core": "^1.2.6",
     "expo-splash-screen": "~0.16.2",
     "expo-status-bar": "~1.4.0",
     "metro-core": "^0.73.1",

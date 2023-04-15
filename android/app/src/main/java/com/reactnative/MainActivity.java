@@ -1,4 +1,4 @@
-package com.UI;
+package com.reactnative;
 
 import android.os.Build;
 import android.os.Bundle;
